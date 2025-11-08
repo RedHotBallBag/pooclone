@@ -1,4 +1,5 @@
 using LaunchBox.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace LaunchBox.Core.Plugins;
 
