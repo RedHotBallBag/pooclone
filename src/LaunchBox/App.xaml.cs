@@ -1,3 +1,4 @@
+using LaunchBox.Core.Plugins;
 using LaunchBox.Core.Repositories;
 using LaunchBox.Core.Services;
 using LaunchBox.Data;
@@ -5,6 +6,7 @@ using LaunchBox.Data.Repositories;
 using LaunchBox.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.IO;
@@ -34,6 +36,9 @@ public partial class App : Application
         // Initialize database
         await InitializeDatabaseAsync();
 
+        // Initialize plugins
+        await InitializePluginsAsync();
+
         // Show main window
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
@@ -57,6 +62,12 @@ public partial class App : Application
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IGameRepository, GameRepository>();
 
+        // Logging
+        services.AddLogging(builder =>
+        {
+            builder.AddSerilog(dispose: true);
+        });
+
         // Services
         services.AddScoped<IGameLibraryService, GameLibraryService>();
         services.AddScoped<IRomScannerService, RomScannerService>();
@@ -69,6 +80,11 @@ public partial class App : Application
                 "Media"
             )
         ));
+
+        // New services
+        services.AddSingleton<IPluginManager, PluginManager>();
+        services.AddSingleton<IEmulatorDetectionService, EmulatorDetectionService>();
+        services.AddSingleton<IPlatformDetectionService, PlatformDetectionService>();
 
         // ViewModels
         services.AddTransient<MainWindowViewModel>();
@@ -117,8 +133,43 @@ public partial class App : Application
         }
     }
 
-    protected override void OnExit(ExitEventArgs e)
+    private async Task InitializePluginsAsync()
     {
+        try
+        {
+            var pluginManager = _serviceProvider!.GetRequiredService<IPluginManager>();
+            await pluginManager.LoadPluginsAsync();
+
+            // Wire up plugin manager to launcher
+            var gameLauncher = _serviceProvider.GetRequiredService<IGameLauncherService>();
+            if (gameLauncher is GameLauncherService launcherService)
+            {
+                launcherService.SetPluginManager(pluginManager);
+            }
+
+            Log.Information("Plugins initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to initialize plugins");
+        }
+    }
+
+    protected override async void OnExit(ExitEventArgs e)
+    {
+        try
+        {
+            var pluginManager = _serviceProvider?.GetService<IPluginManager>();
+            if (pluginManager != null)
+            {
+                await pluginManager.UnloadPluginsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error unloading plugins");
+        }
+
         _serviceProvider?.Dispose();
         Log.CloseAndFlush();
         base.OnExit(e);
