@@ -1,7 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LaunchBox.Core.Models;
+using LaunchBox.Core.Plugins;
+using LaunchBox.Core.Repositories;
 using LaunchBox.Core.Services;
+using LaunchBox.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -12,6 +16,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IGameLibraryService _gameLibraryService;
     private readonly IGameLauncherService _gameLauncherService;
     private readonly IEmulatorService _emulatorService;
+    private readonly IServiceProvider _serviceProvider;
 
     [ObservableProperty]
     private ObservableCollection<Game> _games = new();
@@ -40,11 +45,13 @@ public partial class MainWindowViewModel : ObservableObject
     public MainWindowViewModel(
         IGameLibraryService gameLibraryService,
         IGameLauncherService gameLauncherService,
-        IEmulatorService emulatorService)
+        IEmulatorService emulatorService,
+        IServiceProvider serviceProvider)
     {
         _gameLibraryService = gameLibraryService;
         _gameLauncherService = gameLauncherService;
         _emulatorService = emulatorService;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task InitializeAsync()
@@ -161,15 +168,45 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void AddGame()
     {
-        // TODO: Show add game dialog
-        MessageBox.Show("Add game dialog - to be implemented", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        // Open Import Wizard
+        var platformRepo = _serviceProvider.GetRequiredService<IRepository<Platform>>();
+        var platforms = platformRepo.GetAllAsync().Result;
+
+        var window = new ImportWizardWindow(
+            _gameLibraryService,
+            _serviceProvider.GetRequiredService<IPlatformDetectionService>(),
+            platforms);
+
+        if (window.ShowDialog() == true)
+        {
+            // Reload games after import
+            _ = LoadGamesAsync();
+        }
     }
 
     [RelayCommand]
     private void ScanRomFolder()
     {
-        // TODO: Show scan folder dialog
-        MessageBox.Show("Scan ROM folder dialog - to be implemented", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        // Also opens Import Wizard
+        AddGame();
+    }
+
+    [RelayCommand]
+    private void OpenEmulatorManager()
+    {
+        var window = new EmulatorManagerWindow(
+            _emulatorService,
+            _serviceProvider.GetRequiredService<IEmulatorDetectionService>(),
+            _serviceProvider.GetRequiredService<IRepository<Platform>>());
+        window.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void OpenPluginManager()
+    {
+        var window = new PluginManagerWindow(
+            _serviceProvider.GetRequiredService<IPluginManager>());
+        window.ShowDialog();
     }
 
     [RelayCommand]
