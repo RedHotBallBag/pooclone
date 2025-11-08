@@ -83,8 +83,8 @@ public partial class App : Application
             using var scope = _serviceProvider!.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<LaunchBoxDbContext>();
 
-            // Apply migrations
-            await context.Database.MigrateAsync();
+            // Ensure database is created (for MVP - use migrations in production)
+            await context.Database.EnsureCreatedAsync();
 
             // Initialize emulator presets
             var emulatorService = scope.ServiceProvider.GetRequiredService<IEmulatorService>();
