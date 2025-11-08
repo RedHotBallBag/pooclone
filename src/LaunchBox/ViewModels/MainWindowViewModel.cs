@@ -159,14 +159,14 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddGameAsync()
+    private void AddGame()
     {
         // TODO: Show add game dialog
         MessageBox.Show("Add game dialog - to be implemented", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     [RelayCommand]
-    private async Task ScanRomFolderAsync()
+    private void ScanRomFolder()
     {
         // TODO: Show scan folder dialog
         MessageBox.Show("Scan ROM folder dialog - to be implemented", "Info", MessageBoxButton.OK, MessageBoxImage.Information);

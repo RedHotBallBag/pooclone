@@ -6,6 +6,7 @@ using LaunchBox.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.IO;
 using System.Windows;
 
 namespace LaunchBox;
