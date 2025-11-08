@@ -38,8 +38,10 @@
                 <MenuItem Header="Details View" Command="{Binding SwitchViewModeCommand}" CommandParameter="Details"/>
             </MenuItem>
             <MenuItem Header="Tools">
+                <MenuItem Header="Emulator Manager" Command="{Binding OpenEmulatorManagerCommand}"/>
+                <MenuItem Header="Plugin Manager" Command="{Binding OpenPluginManagerCommand}"/>
+                <Separator/>
                 <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}"/>
-                <MenuItem Header="Emulator Configuration"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="About"/>
