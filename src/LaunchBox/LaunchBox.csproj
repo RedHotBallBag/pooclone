@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LaunchBox.Core\LaunchBox.Core.csproj" />
     <ProjectReference Include="..\LaunchBox.Data\LaunchBox.Data.csproj" />
   </ItemGroup>
