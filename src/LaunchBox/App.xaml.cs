@@ -6,6 +6,7 @@ using LaunchBox.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System;
 using System.IO;
 using System.Windows;
 
@@ -83,8 +84,23 @@ public partial class App : Application
             using var scope = _serviceProvider!.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<LaunchBoxDbContext>();
 
-            // Ensure database is created (for MVP - use migrations in production)
-            await context.Database.EnsureCreatedAsync();
+            // Delete and recreate database if corrupted (MVP approach)
+            // For production, use proper migrations
+            try
+            {
+                // Test if database is accessible
+                await context.Database.CanConnectAsync();
+
+                // Ensure all tables exist
+                await context.Database.EnsureCreatedAsync();
+            }
+            catch
+            {
+                // If database is corrupted, delete and recreate
+                Log.Warning("Database corrupted, recreating...");
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.EnsureCreatedAsync();
+            }
 
             // Initialize emulator presets
             var emulatorService = scope.ServiceProvider.GetRequiredService<IEmulatorService>();
@@ -95,7 +111,9 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to initialize database");
-            MessageBox.Show($"Failed to initialize database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Failed to initialize database: {ex.Message}\n\nPlease delete the database file at:\n{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LaunchBox", "launchbox.db")}",
+                "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Application.Current.Shutdown();
         }
     }
 

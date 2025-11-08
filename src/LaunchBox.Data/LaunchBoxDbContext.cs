@@ -88,23 +88,25 @@ public class LaunchBoxDbContext : DbContext
 
     private void SeedData(ModelBuilder modelBuilder)
     {
+        var now = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         // Seed common platforms
         modelBuilder.Entity<Platform>().HasData(
-            new Platform { Id = 1, Name = "Nintendo Entertainment System", Description = "8-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1983 },
-            new Platform { Id = 2, Name = "Super Nintendo Entertainment System", Description = "16-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1990 },
-            new Platform { Id = 3, Name = "Nintendo 64", Description = "64-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1996 },
-            new Platform { Id = 4, Name = "PlayStation", Description = "32-bit home console", Manufacturer = "Sony", ReleaseYear = 1994 },
-            new Platform { Id = 5, Name = "PlayStation 2", Description = "128-bit home console", Manufacturer = "Sony", ReleaseYear = 2000 },
-            new Platform { Id = 6, Name = "Sega Genesis", Description = "16-bit home console", Manufacturer = "Sega", ReleaseYear = 1988 },
-            new Platform { Id = 7, Name = "Game Boy", Description = "8-bit handheld console", Manufacturer = "Nintendo", ReleaseYear = 1989 },
-            new Platform { Id = 8, Name = "Game Boy Advance", Description = "32-bit handheld console", Manufacturer = "Nintendo", ReleaseYear = 2001 },
-            new Platform { Id = 9, Name = "Nintendo DS", Description = "Dual-screen handheld console", Manufacturer = "Nintendo", ReleaseYear = 2004 },
-            new Platform { Id = 10, Name = "Arcade", Description = "Arcade machines", Manufacturer = "Various", ReleaseYear = 1970 }
+            new Platform { Id = 1, Name = "Nintendo Entertainment System", Description = "8-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1983, CreatedAt = now },
+            new Platform { Id = 2, Name = "Super Nintendo Entertainment System", Description = "16-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1990, CreatedAt = now },
+            new Platform { Id = 3, Name = "Nintendo 64", Description = "64-bit home console", Manufacturer = "Nintendo", ReleaseYear = 1996, CreatedAt = now },
+            new Platform { Id = 4, Name = "PlayStation", Description = "32-bit home console", Manufacturer = "Sony", ReleaseYear = 1994, CreatedAt = now },
+            new Platform { Id = 5, Name = "PlayStation 2", Description = "128-bit home console", Manufacturer = "Sony", ReleaseYear = 2000, CreatedAt = now },
+            new Platform { Id = 6, Name = "Sega Genesis", Description = "16-bit home console", Manufacturer = "Sega", ReleaseYear = 1988, CreatedAt = now },
+            new Platform { Id = 7, Name = "Game Boy", Description = "8-bit handheld console", Manufacturer = "Nintendo", ReleaseYear = 1989, CreatedAt = now },
+            new Platform { Id = 8, Name = "Game Boy Advance", Description = "32-bit handheld console", Manufacturer = "Nintendo", ReleaseYear = 2001, CreatedAt = now },
+            new Platform { Id = 9, Name = "Nintendo DS", Description = "Dual-screen handheld console", Manufacturer = "Nintendo", ReleaseYear = 2004, CreatedAt = now },
+            new Platform { Id = 10, Name = "Arcade", Description = "Arcade machines", Manufacturer = "Various", ReleaseYear = 1970, CreatedAt = now }
         );
 
         // Seed default app settings
         modelBuilder.Entity<AppSettings>().HasData(
-            new AppSettings { Id = 1 }
+            new AppSettings { Id = 1, UpdatedAt = now }
         );
     }
 }
