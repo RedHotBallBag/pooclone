@@ -1,4 +1,5 @@
 using LaunchBox.Core.Models;
+using LaunchBox.Core.Plugins;
 using System.Diagnostics;
 
 namespace LaunchBox.Core.Services;
@@ -7,11 +8,17 @@ public class GameLauncherService : IGameLauncherService
 {
     private readonly IEmulatorService _emulatorService;
     private readonly IGameLibraryService _gameLibraryService;
+    private IPluginManager? _pluginManager;
 
     public GameLauncherService(IEmulatorService emulatorService, IGameLibraryService gameLibraryService)
     {
         _emulatorService = emulatorService;
         _gameLibraryService = gameLibraryService;
+    }
+
+    public void SetPluginManager(IPluginManager pluginManager)
+    {
+        _pluginManager = pluginManager;
     }
 
     public async Task<bool> LaunchGameAsync(Game game, Emulator? emulator = null)
@@ -54,10 +61,37 @@ public class GameLauncherService : IGameLauncherService
 
         try
         {
-            Process.Start(startInfo);
+            // Call plugin hooks before launch
+            if (_pluginManager != null)
+            {
+                foreach (var plugin in _pluginManager.GetLoadedPlugins())
+                {
+                    await plugin.OnGameLaunchAsync(game, emulator);
+                }
+            }
+
+            var process = Process.Start(startInfo);
 
             // Update play statistics
             await _gameLibraryService.UpdatePlayStatsAsync(game.Id);
+
+            // Monitor process for close event
+            if (process != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await process.WaitForExitAsync();
+
+                    // Call plugin hooks after game closes
+                    if (_pluginManager != null)
+                    {
+                        foreach (var plugin in _pluginManager.GetLoadedPlugins())
+                        {
+                            await plugin.OnGameCloseAsync(game);
+                        }
+                    }
+                });
+            }
 
             return true;
         }
