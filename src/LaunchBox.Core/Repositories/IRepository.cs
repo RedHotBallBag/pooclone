@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace LaunchBox.Data.Repositories;
+namespace LaunchBox.Core.Repositories;
 
 public interface IRepository<T> where T : class
 {

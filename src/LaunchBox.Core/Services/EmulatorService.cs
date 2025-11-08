@@ -1,5 +1,5 @@
 using LaunchBox.Core.Models;
-using LaunchBox.Data.Repositories;
+using LaunchBox.Core.Repositories;
 
 namespace LaunchBox.Core.Services;
 
