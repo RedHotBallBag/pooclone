@@ -8,6 +8,7 @@ namespace LaunchBox.Core.Services;
 internal class PluginContext : IPluginContext
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly IUserInteractionService _userInteraction;
     private readonly Dictionary<string, object> _settings = new();
     private readonly string _settingsFilePath;
 
@@ -22,6 +23,7 @@ internal class PluginContext : IPluginContext
     public PluginContext(string pluginId, IServiceProvider serviceProvider, ILogger parentLogger)
     {
         _serviceProvider = serviceProvider;
+        _userInteraction = serviceProvider.GetRequiredService<IUserInteractionService>();
 
         // Create plugin-specific logger
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -66,13 +68,12 @@ internal class PluginContext : IPluginContext
 
     public void ShowMessage(string title, string message)
     {
-        System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        _userInteraction.ShowMessage(title, message);
     }
 
     public bool ShowConfirmation(string title, string message)
     {
-        var result = System.Windows.MessageBox.Show(message, title, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
-        return result == System.Windows.MessageBoxResult.Yes;
+        return _userInteraction.ShowConfirmation(title, message);
     }
 
     private void LoadSettings()

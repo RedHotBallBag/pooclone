@@ -85,6 +85,7 @@ public partial class App : Application
         services.AddSingleton<IPluginManager, PluginManager>();
         services.AddSingleton<IEmulatorDetectionService, EmulatorDetectionService>();
         services.AddSingleton<IPlatformDetectionService, PlatformDetectionService>();
+        services.AddSingleton<IUserInteractionService, Services.WpfUserInteractionService>();
 
         // ViewModels
         services.AddTransient<MainWindowViewModel>();
